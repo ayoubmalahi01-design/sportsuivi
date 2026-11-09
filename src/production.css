@@ -2,3 +2,8 @@
 @media(max-width:760px){.auth-card{padding:23px}.form-row>*{flex:1 1 100%}.attendance-summary{grid-template-columns:1fr}.action-row{min-width:205px}}
 .rehab-panel{border-color:#f0dfc4;background:#fffdf8}.rehab-panel h2{color:#986b2c}
 .bulk-preview{border:1px solid #dfeae2;background:#fbfdfb;border-radius:10px;padding:12px;margin:10px 0;display:grid;gap:10px}.bulk-preview>b{font-size:12px;color:#386d4a}.bulk-preview .table-wrap{max-height:240px;overflow:auto}
+
+.chat-box{max-height:50vh;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.chat-msg{background:rgba(255,255,255,.06);padding:8px 12px;border-radius:12px;max-width:80%;align-self:flex-start}
+.chat-msg.me{align-self:flex-end;background:rgba(34,211,166,.15)}
+.chat-msg small{display:block;opacity:.7;font-size:11px}.chat-msg p{margin:4px 0 0}
