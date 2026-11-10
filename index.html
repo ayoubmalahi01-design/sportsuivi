@@ -3,18 +3,19 @@
 <title>SportSuivi</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b1220">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <style>
-:root{--bg:#0b1220;--c:#121c30;--a:#22d3a6;--t:#e8eefc;--m:#8fa0c0;--r:#ff5d73}
+:root{--bg:#0b1220;--c:#121c30;--a:#22d3a6;--t:#e8eefc;--m:#8fa0c0;--r:#ff5d73;--b:#3b82f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px system-ui,Tahoma,sans-serif;padding-top:env(safe-area-inset-top)}
 header{display:flex;gap:10px;align-items:center;padding:12px 16px;background:linear-gradient(90deg,#0f2a4a,#0b1220);border-bottom:1px solid #1c2b47;position:sticky;top:0;z-index:5}
 header b{color:var(--a);font-size:18px}header span{flex:1;color:var(--m);font-size:13px}
-main{padding:14px 14px 100px;max-width:900px;margin:auto}
+main{padding:14px 14px 100px;max-width:1000px;margin:auto}
 nav{position:fixed;bottom:0;inset-inline:0;display:flex;overflow-x:auto;background:#0d1730;border-top:1px solid #1c2b47;padding-bottom:env(safe-area-inset-bottom)}
 nav a{flex:1;min-width:70px;text-align:center;padding:8px 4px;font-size:11px;color:var(--m);cursor:pointer}
 nav a i{display:block;font-style:normal;font-size:20px}nav a.on{color:var(--a)}
 button{background:var(--a);color:#032;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;font:inherit}
 button.ghost{background:transparent;color:var(--m);border:1px solid #2a3a5c}
+button.danger{background:var(--r);color:#fff}
 input,select,textarea{background:var(--c);color:var(--t);border:1px solid #243659;border-radius:10px;padding:10px;font:inherit;min-width:0}
-.box{max-width:340px;margin:12vh auto;display:flex;flex-direction:column;gap:10px;padding:20px}.box h1{color:var(--a);text-align:center}
+.box{max-width:360px;margin:12vh auto;display:flex;flex-direction:column;gap:10px;padding:20px}.box h1{color:var(--a);text-align:center}
 .f{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.f>*{flex:1 1 110px}
 .r{display:flex;align-items:center;gap:10px;background:var(--c);border-radius:12px;padding:10px 12px;margin:6px 0;animation:in .25s}
 .r>span{flex:1}.r small{display:block;color:var(--m);font-size:12px}.r>b{min-width:28px;color:var(--a)}.r select{flex:0 0 auto}
@@ -24,6 +25,8 @@ input,select,textarea{background:var(--c);color:var(--t);border:1px solid #24365
 .chat{height:55vh;overflow:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
 .c{background:var(--c);padding:8px 12px;border-radius:12px;max-width:80%;align-self:flex-start}.c.me{align-self:flex-end;background:#0f3b3a}.c small{display:block;color:var(--m);font-size:11px}
 table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid #243659;text-align:start}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:14px}
+.modal>div{background:var(--c);border-radius:14px;padding:16px;max-width:700px;width:100%;max-height:85vh;overflow:auto}
 @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 </style></head><body><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -36,18 +39,17 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 const RK={super_admin:4,sub_admin:3,admin:2,coach:1},RL={super_admin:'سوبر أدمن',sub_admin:'أدمن فرعي',admin:'إدارة',coach:'مدرب'};
 const ST={present:'حاضر',absent:'غائب',late:'متأخر',permission:'إذن',exempt:'معفى',official_duty:'مهمة رسمية'};
 const I18N={
- ar:{weight:'الوزن',height:'الطول',bmi:'مؤشر كتلة الجسم',date:'تاريخ القياس',history:'سجل الوزن',severe:'نحافة شديدة',thin:'نحافة',normal:'وزن طبيعي',over:'زيادة في الوزن',obese:'سمنة',na:'تصنيف غير متاح',unavailable:'التصنيف غير متاح',invalid:'قيم غير صالحة',saved:'تم الحفظ',lang:'اللغة'},
- fr:{weight:'Poids',height:'Taille',bmi:'Indice de masse corporelle',date:'Date de mesure',history:'Historique du poids',severe:'Maigreur sévère',thin:'Maigreur',normal:'Corpulence normale',over:'Surpoids',obese:'Obésité',na:'Classification indisponible',unavailable:'Classification indisponible',invalid:'Valeurs invalides',saved:'Enregistré',lang:'Langue'},
- en:{weight:'Weight',height:'Height',bmi:'Body Mass Index',date:'Measurement date',history:'Weight history',severe:'Severe thinness',thin:'Thinness',normal:'Normal weight',over:'Overweight',obese:'Obesity',na:'Classification unavailable',unavailable:'Classification unavailable',invalid:'Invalid values',saved:'Saved',lang:'Language'}
+ ar:{home:'الرئيسية',students:'الطلاب',att:'الحضور',sessions:'الحصص',results:'النتائج',weight:'الوزن',notes:'الملاحظات',notebook:'دفتر المدرب',chat:'المحادثة',team:'الفريق',tests:'الاختبارات',audit:'التدقيق',settings:'الإعدادات',login:'دخول',signup:'تسجيل',logout:'خروج',save:'حفظ',add:'إضافة',search:'بحث',weightKg:'الوزن (كغ)',heightCm:'الطول (سم)',bmi:'مؤشر كتلة الجسم',date:'التاريخ',history:'السجل',severe:'نحافة شديدة',thin:'نحافة',normal:'وزن طبيعي',over:'زيادة وزن',obese:'سمنة',na:'تصنيف غير متاح',unavailable:'تصنيف غير متاح (بيانات ناقصة/قاصر)',invalid:'قيم غير صالحة',saved:'تم الحفظ',lang:'اللغة',pending:'بانتظار الموافقة',suspended:'موقوف',active:'نشط',coach:'مدرب',admin:'إدارة',note:'ملاحظة',start:'بدء حصة',end:'إنهاء حصة',bulk:'استيراد جماعي',preview:'معاينة',dossier:'ملف الطالب',auditLog:'سجل التدقيق',instSettings:'إعدادات المؤسسة',infra:'البنية التحتية',logo:'الشعار',name:'الاسم',number:'الرقم',gender:'الجنس',birth:'تاريخ الميلاد',male:'ذكر',female:'أنثى',score:'النقطة',raw:'القيمة',test:'الاختبار',coef:'المعامل',scale:'الباركيم',version:'الإصدار',absences:'الغيابات',rehab:'تنبيه تأهيل',handled:'تمت المعالجة',unread:'غير مقروء',send:'إرسال',record:'تسجيل',stop:'إيقاف',duration:'المدة',startT:'بداية',endT:'نهاية'},
+ fr:{home:'Accueil',students:'Élèves',att:'Présences',sessions:'Séances',results:'Résultats',weight:'Poids',notes:'Observations',notebook:'Carnet',chat:'Messagerie',team:'Équipe',tests:'Tests',audit:'Audit',settings:'Paramètres',login:'Connexion',signup:'Inscription',logout:'Déconnexion',save:'Enregistrer',add:'Ajouter',search:'Recherche',weightKg:'Poids (kg)',heightCm:'Taille (cm)',bmi:'IMC',date:'Date',history:'Historique',severe:'Maigreur sévère',thin:'Maigreur',normal:'Poids normal',over:'Surpoids',obese:'Obésité',na:'Classification indisponible',unavailable:'Classification indisponible (données manquantes/mineur)',invalid:'Valeurs invalides',saved:'Enregistré',lang:'Langue',pending:'En attente',suspended:'Suspendu',active:'Actif',coach:'Entraîneur',admin:'Administration',note:'Note',start:'Démarrer',end:'Terminer',bulk:'Import groupé',preview:'Aperçu',dossier:'Dossier',auditLog:'Journal d’audit',instSettings:'Paramètres',infra:'Infrastructure',logo:'Logo',name:'Nom',number:'Numéro',gender:'Sexe',birth:'Naissance',male:'M',female:'F',score:'Note',raw:'Valeur',test:'Test',coef:'Coeff.',scale:'Barème',version:'Version',absences:'Absences',rehab:'Alerte réadaptation',handled:'Traité',unread:'Non lu',send:'Envoyer',record:'Enregistrer',stop:'Arrêter',duration:'Durée',startT:'Début',endT:'Fin'},
+ en:{home:'Home',students:'Students',att:'Attendance',sessions:'Sessions',results:'Results',weight:'Weight',notes:'Notes',notebook:'Notebook',chat:'Chat',team:'Team',tests:'Tests',audit:'Audit',settings:'Settings',login:'Login',signup:'Sign up',logout:'Logout',save:'Save',add:'Add',search:'Search',weightKg:'Weight (kg)',heightCm:'Height (cm)',bmi:'BMI',date:'Date',history:'History',severe:'Severe thinness',thin:'Thinness',normal:'Normal weight',over:'Overweight',obese:'Obesity',na:'Unavailable',unavailable:'Unavailable (missing/minor)',invalid:'Invalid values',saved:'Saved',lang:'Language',pending:'Pending',active:'Active',suspended:'Suspended',coach:'Coach',admin:'Admin',note:'Note',start:'Start',end:'End',bulk:'Bulk import',preview:'Preview',dossier:'Dossier',auditLog:'Audit log',instSettings:'Settings',infra:'Infrastructure',logo:'Logo',name:'Name',number:'Number',gender:'Gender',birth:'Birth date',male:'M',female:'F',score:'Score',raw:'Raw',test:'Test',coef:'Coeff.',scale:'Scale',version:'Version',absences:'Absences',rehab:'Rehab alert',handled:'Handled',unread:'Unread',send:'Send',record:'Record',stop:'Stop',duration:'Duration',startT:'Start',endT:'End'}
 };
 let lang=localStorage.getItem('lang')||'ar';
 function t(k){return (I18N[lang]&&I18N[lang][k])||I18N.ar[k]||k;}
 function setLang(l){lang=l;localStorage.setItem('lang',l);document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';go(tab);}
-let me,tab='home',timer,studs=[];
+let me,tab='home',timer,studs=[],sessions=[];
 const adm=()=>RK[me.role]>=2,today=()=>new Date().toISOString().slice(0,10);
 const opts=(a,v,l)=>a.map(x=>`<option value="${esc(x[v])}">${esc(typeof l=='function'?l(x):x[l])}</option>`).join('');
 const err=e=>{if(e){alert(e.message);return true}};
-const dl=(d,hi)=>!d?'':`<small class="${hi===null?'n':(d>0)==hi?'up':'dn'}">${d>0?'↑':'↓'} ${Math.abs(+d.toFixed(2))}</small>`;
 const sopt=()=>opts(studs,'id',s=>s.student_number+' - '+s.full_name);
 const out=async()=>{await sb.auth.signOut();login()};
 
@@ -62,21 +64,14 @@ function bmiClass(b,age,gender){
  if(b<30)return t('over');
  return t('obese');
 }
-function bmiText(m,s){
- const b=bmi(m.weight_kg,m.height_cm);
- const age=ageOn(s.birth_date,m.measured_on);
- const cat=bmiClass(b,age,s.gender);
- return (b==null?'-':b.toFixed(2))+' — '+cat;
-}
+function bmiText(m,s){const b=bmi(m.weight_kg,m.height_cm);const age=ageOn(s.birth_date,m.measured_on);return (b==null?'-':b.toFixed(2))+' — '+bmiClass(b,age,s.gender);}
 
 function login(){
- app.innerHTML=`<div class=box><h1>SportSuivi</h1><input id=n placeholder="الاسم (عند التسجيل)">`+
- `<input id=e type=email placeholder="البريد الإلكتروني"><input id=p type=password placeholder="كلمة المرور">`+
- `<button id=li>دخول</button><button id=su class=ghost>تسجيل جديد</button></div>`;
+ app.innerHTML=`<div class=box><h1>SportSuivi</h1><input id=n placeholder="${t('name')} (${t('signup')})"><input id=e type=email placeholder="Email"><input id=p type=password placeholder="Password"><button id=li>${t('login')}</button><button id=su class=ghost>${t('signup')}</button></div>`;
  $('#li').onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$('#e').value.trim(),password:$('#p').value});err(error)||boot()};
- $('#su').onclick=async()=>{const{error}=await sb.auth.signUp({email:$('#e').value.trim(),password:$('#p').value,options:{data:{full_name:$('#n').value.trim()}}});err(error)||(alert('تم. التسجيل قيد المراجعة.'),boot())};
+ $('#su').onclick=async()=>{const{error}=await sb.auth.signUp({email:$('#e').value.trim(),password:$('#p').value,options:{data:{full_name:$('#n').value.trim()}}});err(error)||(alert('OK'),boot())};
 }
-function wait(){app.innerHTML=`<div class=box><h1>SportSuivi</h1><p class=m>${me.status==='pending'?'الحساب قيد المراجعة.':'الحساب موقوف.'}</p><button onclick=boot()>تحديث</button><button class=ghost onclick=out()>خروج</button></div>`}
+function wait(){app.innerHTML=`<div class=box><h1>SportSuivi</h1><p class=m>${me.status==='pending'?t('pending'):'Suspended'}</p><button onclick=boot()>Refresh</button><button class=ghost onclick=out()>${t('logout')}</button></div>`}
 async function boot(){
  const{data:{session}}=await sb.auth.getSession();
  if(!session)return login();
@@ -84,13 +79,16 @@ async function boot(){
  me=data;if(!me)return login();
  if(me.status!=='active')return wait();
  studs=(await sb.from('students').select('id,student_number,full_name,gender,birth_date').eq('archived',false).order('student_number')).data||[];
+ sessions=(await sb.from('sessions').select('*').eq('institution_id',me.institution_id).order('session_date',{ascending:false}).limit(50)).data||[];
+ const{data:inst}=await sb.from('institutions').select('name,logo_url').eq('id',me.institution_id).maybeSingle();
+ if(inst?.logo_url){document.body.style.backgroundImage=`linear-gradient(rgba(11,18,32,.92),rgba(11,18,32,.92)), url(${inst.logo_url})`;document.body.style.backgroundSize='cover';}
  shell();
 }
-const TABS=[['home','🏠','الرئيسية'],['students','👥','الطلاب'],['att','📅','الحضور'],['results','📊','النتائج'],['weight','⚖️','الوزن'],['notes','📝','الملاحظات'],['chat','💬','المحادثة',()=>me.role==='coach'],['team','🛡️','الفريق',adm],['tests','🧪','الاختبارات',adm]];
+const TABS=[['home','🏠',t('home')],['students','👥',t('students')],['att','📅',t('att')],['sessions','⏱️',t('sessions')],['results','📊',t('results')],['weight','⚖️',t('weight')],['notes','📝',t('notes')],['notebook','📓',t('notebook')],['chat','💬',t('chat')],['team','🛡️',t('team')],['tests','🧪',t('tests')],['audit','📜',t('audit')],['settings','⚙️',t('settings')]];
 function shell(){
  app.innerHTML=`<header><b>SportSuivi</b><span>${esc(me.full_name||'')} — ${RL[me.role]}</span>`+
  `<select id=lang onchange="setLang(this.value)" style="width:auto">${['ar','fr','en'].map(l=>`<option value="${l}" ${lang===l?'selected':''}>${l.toUpperCase()}</option>`).join('')}</select>`+
- `<button class=ghost onclick=out()>خروج</button></header><main id=v></main><nav>${TABS.filter(t=>!t[3]||t[3]()).map(t=>`<a data-t=${t[0]}><i>${t[1]}</i>${t[2]}</a>`).join('')}</nav>`;
+ `<button class=ghost onclick=out()>${t('logout')}</button></header><main id=v></main><nav>${TABS.filter(t=>!t[3]||t[3]()).map(t=>`<a data-t=${t[0]}><i>${t[1]}</i>${t[2]}</a>`).join('')}</nav>`;
  document.querySelectorAll('nav a').forEach(a=>a.onclick=()=>go(a.dataset.t));
  go(tab);
 }
@@ -99,73 +97,160 @@ async function go(t){
  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.t==t));
  $('#v').innerHTML='<p class=m>...</p>';await V[t]();
 }
+async function loadRehab(){const{data}=await sb.from('rehab_notifications').select('*,students(full_name)').eq('institution_id',me.institution_id).eq('status','active');return data||[];}
 const V={
 home:async()=>{
  const c=async(t,f)=>{let q=sb.from(t).select('id',{count:'exact',head:true});if(f)q=f(q);return(await q).count||0};
  const[s,r]=await Promise.all([c('students',q=>q.eq('archived',false)),c('test_results')]);
  const p=adm()?await c('profiles',q=>q.eq('status','pending')):0;
- $('#v').innerHTML=`<div class=g><div class=k><b>${s}</b> طالب</div><div class=k><b>${r}</b> نتيجة</div>${adm()?`<div class=k><b>${p}</b> بانتظار الموافقة</div>`:''}</div>`;
+ const rehab=await loadRehab();
+ const rehabHtml=rehab.length?`<div class="k" style="text-align:start"><b>${rehab.length}</b> ${t('rehab')}<br>`+rehab.map(n=>`${esc(n.students?.full_name||n.student_id)} — ${n.remaining_sessions} séances <button class="ghost" onclick="handleRehab('${n.id}')">${t('handled')}</button>`).join('<br>')+`</div>`:'';
+ $('#v').innerHTML=rehabHtml+`<div class=g><div class=k><b>${s}</b> ${t('students')}</div><div class=k><b>${r}</b> ${t('results')}</div>${adm()?`<div class=k><b>${p}</b> ${t('pending')}</div>`:''}</div>`;
 },
 students:async()=>{
  const{data:ms}=await sb.from('body_measurements').select('student_id,weight_kg,height_cm,measured_on').order('measured_on',{ascending:false});
  const latest={};for(const m of (ms||[]))if(!latest[m.student_id])latest[m.student_id]=m;
  const draw=f=>$('#l').innerHTML=studs.filter(s=>!f||(s.full_name+s.student_number).includes(f)).map(s=>{
   const m=latest[s.id];const info=m?`<small>${t('bmi')}: ${bmiText(m,s)}</small>`:'';
-  return `<div class=r><b>${s.student_number}</b><span>${esc(s.full_name)}${info}</span></div>`}).join('')||'<p class=m>لا يوجد</p>';
- $('#v').innerHTML=`${adm()?`<div class=f><input id=no type=number placeholder="رقم"><input id=nm placeholder="الاسم"><select id=gn><option value="">جنس</option><option value=M>ذكر</option><option value=F>أنثى</option></select><input id=bd type=date placeholder="تاريخ الميلاد"><button id=ad>إضافة</button></div>`:''}<div class=f><input id=s placeholder="بحث"></div><div id=l></div>`;
+  return `<div class=r><b>${s.student_number}</b><span>${esc(s.full_name)}${info}</span><button class=ghost onclick="openDossier('${s.id}')">${t('dossier')}</button></div>`}).join('')||'<p class=m>لا يوجد</p>';
+ $('#v').innerHTML=`${adm()?`<div class=f><input id=no type=number placeholder="${t('number')}"><input id=nm placeholder="${t('name')}"><select id=gn><option value="">${t('gender')}</option><option value=M>${t('male')}</option><option value=F>${t('female')}</option></select><input id=bd type=date placeholder="${t('birth')}"><button id=ad>${t('add')}</button></div>
+ <div class=f><textarea id=bulk placeholder="Import: number,name (lines)"></textarea><button id=bp>${t('preview')}</button></div><div id=bpv></div>`:''}<div class=f><input id=s placeholder="${t('search')}"></div><div id=l></div>`;
  draw();$('#s').oninput=e=>draw(e.target.value);
- if(adm())$('#ad').onclick=async()=>{if(!err((await sb.from('students').insert({student_number:+$('#no').value,full_name:$('#nm').value.trim(),gender:$('#gn').value||null,birth_date:$('#bd').value||null})).error))boot()};
+ if(adm()){
+  $('#ad').onclick=async()=>{if(!err((await sb.from('students').insert({student_number:+$('#no').value,full_name:$('#nm').value.trim(),gender:$('#gn').value||null,birth_date:$('#bd').value||null})).error))boot()};
+  $('#bp').onclick=()=>{
+   const rows=$('#bulk').value.trim().split(/\r?\n/).map(l=>l.split(/[\t;,]/).map(x=>x.trim())).filter(x=>x.length>=2&&x[0]&&x[1]);
+   if(!rows.length){$('#bpv').innerHTML='<p class=m>لا بيانات</p>';return;}
+   const payload=rows.map(x=>({student_number:Number(x[0]),full_name:x[1]}));
+   const nums=payload.map(x=>x.student_number);
+   const dup=nums.length!==new Set(nums).size;
+   const existing=payload.filter(x=>studs.some(s=>s.student_number===x.student_number));
+   $('#bpv').innerHTML=`<p class=m>${payload.length} rows ${dup?'(duplicates!)':''} ${existing.length?'existing:'+existing.length:''}</p><button id=bs>${t('save')}</button>`;
+   $('#bs').onclick=async()=>{const insertRows=payload.map(x=>({...x,institution_id:me.institution_id}));if(!err((await sb.from('students').insert(insertRows)).error)){alert(t('saved'));$('#bulk').value='';$('#bpv').innerHTML='';boot()}};
+  };
+ }
 },
 att:async()=>{
- $('#v').innerHTML=`<div class=f><input id=d type=date value="${today()}"><button id=sv>حفظ</button></div><div id=l></div>`;
+ $('#v').innerHTML=`<div class=f><input id=d type=date value="${today()}"><button id=sv>${t('save')}</button></div><div id=l></div>`;
  const load=async()=>{const{data}=await sb.from('attendance').select('student_id,status').eq('attendance_date',$('#d').value);const m=Object.fromEntries((data||[]).map(x=>[x.student_id,x.status]));$('#l').innerHTML=studs.map(s=>`<div class=r><b>${s.student_number}</b><span>${esc(s.full_name)}</span><select data-i=${s.id}>${Object.entries(ST).map(([k,v])=>`<option value=${k}${(m[s.id]||'present')==k?' selected':''}>${v}</option>`).join('')}</select></div>`).join('')};
  await load();$('#d').onchange=load;
- $('#sv').onclick=async()=>{const rows=[...document.querySelectorAll('#l select')].map(x=>({student_id:x.dataset.i,attendance_date:$('#d').value,status:x.value}));const{error}=await sb.from('attendance').upsert(rows,{onConflict:'student_id,attendance_date'});alert(error?error.message:'تم الحفظ')};
+ $('#sv').onclick=async()=>{const date=$('#d').value;const{data:existing}=await sb.from('attendance').select('id,student_id').eq('attendance_date',date).is('session_id',null);const byStu=Object.fromEntries((existing||[]).map(x=>[x.student_id,x.id]));let ok=true;for(const sel of document.querySelectorAll('#l select')){const sid=sel.dataset.i;const status=sel.value;const eid=byStu[sid];const{error}=eid?await sb.from('attendance').update({status}).eq('id',eid):await sb.from('attendance').insert({student_id:sid,attendance_date:date,status,recorded_by:me.id});if(error){ok=false;alert(error.message);break;}}alert(ok?t('saved'):'error')};
+},
+sessions:async()=>{
+ const load=async()=>{sessions=(await sb.from('sessions').select('*').eq('institution_id',me.institution_id).order('session_date',{ascending:false}).limit(50)).data||[];$('#sl').innerHTML=sessions.map(s=>`<div class=r><span>${s.session_date} ${s.start_time||''}→${s.end_time||'...'}<small>${s.coach_id===me.id?'me':'coach'}</small></span>${s.coach_id===me.id&&!s.end_time?`<button class=danger onclick="endSession('${s.id}')">${t('end')}</button>`:''}<button class=ghost onclick="loadSessionAtt('${s.id}')">${t('att')}</button></div>`).join('')};
+ $('#v').innerHTML=`<div class=f><button id=ss>${t('start')}</button></div><div id=sl></div><div id=sa></div><div id=rehab></div>`;
+ $('#ss').onclick=async()=>{const now=new Date().toTimeString().slice(0,8);if(!err((await sb.from('sessions').insert({institution_id:me.institution_id,coach_id:me.id,session_date:today(),start_time:now})).error)){alert(t('saved'));load()}};
+ load();
+ window.endSession=async(id)=>{const now=new Date().toTimeString().slice(0,8);if(!err((await sb.from('sessions').update({end_time:now}).eq('id',id).eq('coach_id',me.id)).error)){alert(t('saved'));load()}};
+ window.loadSessionAtt=async(sid)=>{
+  const s=sessions.find(x=>x.id===sid);if(!s)return;
+  const{data}=await sb.from('attendance').select('student_id,status').eq('session_id',sid);
+  const m=Object.fromEntries((data||[]).map(x=>[x.student_id,x.status]));
+  $('#sa').innerHTML=`<h4>${t('att')} ${s.session_date}</h4><div class=f><textarea id=nums placeholder="numéros absents (séparés par espace)"></textarea><select id=stt>${Object.entries(ST).map(([k,v])=>`<option value=${k}>${v}</option>`).join('')}</select><button id=bulkatt>${t('bulk')}</button></div>`+
+  `<div id=attlist>${studs.map(st=>`<div class=r><b>${st.student_number}</b><span>${esc(st.full_name)}</span><select data-i=${st.id} class=ast>${Object.entries(ST).map(([k,v])=>`<option value=${k}${(m[st.id]||'present')==k?' selected':''}>${v}</option>`).join('')}</select></div>`).join('')}</div><button id=saveatt>${t('save')}</button>`;
+  $('#saveatt').onclick=async()=>{const rows=studs.map(st=>({institution_id:me.institution_id,student_id:st.id,session_id:sid,attendance_date:s.session_date,status:document.querySelector(`.ast[data-i="${st.id}"]`).value,recorded_by:me.id}));const{error}=await sb.from('attendance').upsert(rows,{onConflict:'student_id,attendance_date,session_id'});alert(error?error.message:t('saved'))};
+  $('#bulkatt').onclick=async()=>{
+   const nums=$('#nums').value.trim().split(/\s+/).filter(Boolean).map(Number);
+   const status=$('#stt').value;
+   const unknown=nums.filter(n=>!studs.some(s=>s.student_number===n));
+   if(unknown.length){alert('Unknown: '+unknown.join(', '));return;}
+   for(const n of nums){const st=studs.find(s=>s.student_number===n);const sel=document.querySelector(`.ast[data-i="${st.id}"]`);if(sel)sel.value=status;}
+   alert('Applied '+nums.length);
+  };
+ };
+ const rehab=await loadRehab();
+ $('#rehab').innerHTML=rehab.length?`<h4>${t('rehab')}</h4>`+rehab.map(n=>`<div class=r><span>${esc(n.students?.full_name||n.student_id)}<small>${n.remaining_sessions}</small></span><button class=ghost onclick="handleRehab('${n.id}')">${t('handled')}</button></div>`).join(''):'';
 },
 results:async()=>{
- const[{data:rs},{data:ts}]=await Promise.all([sb.from('test_results').select('*,students(full_name),test_definitions(name,unit,higher_is_better)').order('tested_on',{ascending:false}).limit(300),sb.from('test_definitions').select('*').order('name')]);
- const rows=(rs||[]).map((x,i)=>{const nx=rs.slice(i+1).find(y=>y.student_id==x.student_id&&y.test_id==x.test_id),d=x.test_definitions;return `<div class=r><span>${esc(x.students.full_name)}<small>${esc(d.name)} — ${x.tested_on}</small></span><b>${x.raw_value} ${esc(d.unit||'')}</b>${nx?dl(x.raw_value-nx.raw_value,d.higher_is_better):''}</div>`}).join('');
- $('#v').innerHTML=`${adm()?`<div class=f><select id=st>${sopt()}</select><select id=ts>${opts(ts||[],'id','name')}</select><input id=vl type=number step=any placeholder="القيمة"><input id=dt type=date value="${today()}"><button id=ad>إضافة</button></div>`:''}${rows||'<p class=m>لا توجد نتائج</p>'}`;
- if(adm())$('#ad').onclick=async()=>{if(!err((await sb.from('test_results').insert({student_id:$('#st').value,test_id:$('#ts').value,raw_value:+$('#vl').value,tested_on:$('#dt').value})).error))go('results')};
+ const[{data:rs},{data:ts}]=await Promise.all([sb.from('test_results').select('*,students(full_name),test_definitions(name,unit,higher_is_better,coefficient)').order('tested_on',{ascending:false}).limit(300),sb.from('test_definitions').select('*').order('name')]);
+ const rows=(rs||[]).map(r=>`<div class=r><span>${esc(r.students?.full_name)}<small>${esc(r.test_definitions?.name)} — ${r.tested_on}</small></span><b>${r.raw_value} ${esc(r.test_definitions?.unit||'')}</b>${r.score!=null?` <small>(${t('score')}: ${r.score})</small>`:''}</div>`).join('');
+ $('#v').innerHTML=`${adm()?`<div class=f><select id=st>${sopt()}</select><select id=ts>${opts(ts||[],'id','name')}</select><input id=vl type=number step=any placeholder="${t('raw')}"><label><input id=cv type=checkbox> km/h->m/s</label><input id=dt type=date value="${today()}"><button id=ad>${t('add')}</button></div>`:''}${rows||'<p class=m>لا نتائج</p>'}`;
+ if(adm())$('#ad').onclick=async()=>{
+  const tid=$('#ts').value;let raw=+$('#vl').value;if($('#cv')&&$('#cv').checked) raw=raw/3.6;
+  // compute score from scale_versions if available
+  let score=null,svId=null;
+  const{data:sv}=await sb.from('scale_versions').select('*').eq('test_id',tid).lte('valid_from',$('#dt').value).order('version',{ascending:false}).limit(1);
+  if(sv&&sv.length){svId=sv[0].id;const rules=Array.isArray(sv[0].rules)?sv[0].rules:[];const tdef=ts.find(x=>x.id===tid);const hi=tdef?.higher_is_better!==false;const cands=rules.filter(x=>Number.isFinite(Number(x.rawValue))&&(hi?Number(x.rawValue)>=raw:Number(x.rawValue)<=raw));if(cands.length){cands.sort((a,b)=>hi?Number(a.rawValue)-Number(b.rawValue):Number(b.rawValue)-Number(a.rawValue));score=Number(cands[0].score)}}
+  const payload={student_id:$('#st').value,test_id:tid,raw_value:raw,tested_on:$('#dt').value,recorded_by:me.id};
+  if(score!=null)payload.score=score;if(svId)payload.scale_version_id=svId;
+  if(!err((await sb.from('test_results').insert(payload)).error))go('results');
+ };
 },
 weight:async()=>{
  const{data:ms}=await sb.from('body_measurements').select('*,students(full_name,gender,birth_date)').order('measured_on',{ascending:false}).limit(500);
  const rows=(ms||[]).map(m=>`<div class=r><span>${esc(m.students.full_name)}<small>${m.measured_on}${m.height_cm?' — '+m.height_cm+' سم':''}</small></span><b>${m.weight_kg??'-'} كغ</b><small>${bmiText(m,m.students)}</small></div>`).join('');
- $('#v').innerHTML=`${adm()?`<div class=f><select id=st>${sopt()}</select><input id=w type=number step=any placeholder="${t('weight')} (كغ)"><input id=h type=number step=any placeholder="${t('height')} (سم)"><input id=dt type=date value="${today()}"><button id=ad>${t('saved')==='Saved'?'Save':'+ '+t('weight')}</button></div>`:''}<div class=f><select id=hf><option value="">${t('history')}: ${t('weight')}</option>${studs.map(s=>`<option value="${s.id}">${esc(s.student_number+' - '+s.full_name)}</option>`).join('')}</select></div><div id=hist></div>${rows||'<p class=m>لا توجد قياسات</p>'}`;
- if(adm())$('#ad').onclick=async()=>{
-  const w=$('#w').value,h=$('#h').value;
-  if(!w||!h||+w<=0||+h<=0){alert(t('invalid'));return;}
-  if(!err((await sb.from('body_measurements').insert({student_id:$('#st').value,weight_kg:+w,height_cm:+h,measured_on:$('#dt').value})).error)){alert(t('saved'));go('weight')}
- };
- $('#hf').onchange=async()=>{
-  const sid=$('#hf').value;if(!sid){$('#hist').innerHTML='';return;}
-  const{data}=await sb.from('body_measurements').select('*,students(full_name,gender,birth_date)').eq('student_id',sid).order('measured_on',{ascending:false});
-  $('#hist').innerHTML=`<h4>${t('history')}</h4><table><tr><th>${t('date')}</th><th>${t('weight')}</th><th>${t('height')}</th><th>${t('bmi')}</th><th>التصنيف</th></tr>`+
-  (data||[]).map(m=>`<tr><td>${m.measured_on}</td><td>${m.weight_kg??'-'}</td><td>${m.height_cm??'-'}</td><td>${bmi(m.weight_kg,m.height_cm)==null?'-':bmi(m.weight_kg,m.height_cm).toFixed(2)}</td><td>${bmiClass(bmi(m.weight_kg,m.height_cm),ageOn(m.students.birth_date,m.measured_on),m.students.gender)}</td></tr>`).join('')+`</table>`;
- };
+ $('#v').innerHTML=`${adm()?`<div class=f><select id=st>${sopt()}</select><input id=w type=number step=any placeholder="${t('weightKg')}"><input id=h type=number step=any placeholder="${t('heightCm')}"><input id=dt type=date value="${today()}"><button id=ad>${t('add')}</button></div>`:''}<div class=f><select id=hf><option value="">${t('history')}</option>${studs.map(s=>`<option value="${s.id}">${esc(s.student_number+' - '+s.full_name)}</option>`).join('')}</select></div><div id=hist></div>${rows||'<p class=m>لا قياسات</p>'}`;
+ if(adm())$('#ad').onclick=async()=>{const w=$('#w').value,h=$('#h').value;if(!w||!h||+w<=0||+h<=0){alert(t('invalid'));return;}if(!err((await sb.from('body_measurements').insert({student_id:$('#st').value,weight_kg:+w,height_cm:+h,measured_on:$('#dt').value})).error)){alert(t('saved'));go('weight')}};
+ $('#hf').onchange=async()=>{const sid=$('#hf').value;if(!sid){$('#hist').innerHTML='';return;}const{data}=await sb.from('body_measurements').select('*,students(full_name,gender,birth_date)').eq('student_id',sid).order('measured_on',{ascending:false});$('#hist').innerHTML=`<h4>${t('history')}</h4><table><tr><th>${t('date')}</th><th>${t('weightKg')}</th><th>${t('heightCm')}</th><th>${t('bmi')}</th><th>التصنيف</th></tr>`+(data||[]).map(m=>`<tr><td>${m.measured_on}</td><td>${m.weight_kg??'-'}</td><td>${m.height_cm??'-'}</td><td>${bmi(m.weight_kg,m.height_cm)==null?'-':bmi(m.weight_kg,m.height_cm).toFixed(2)}</td><td>${bmiClass(bmi(m.weight_kg,m.height_cm),ageOn(m.students.birth_date,m.measured_on),m.students.gender)}</td></tr>`).join('')+`</table>`;};
 },
-notes:async()=>{
+notes:async()=>{ // observations
  const{data}=await sb.from('observations').select('*,students(full_name),profiles(full_name)').order('created_at',{ascending:false}).limit(100);
- $('#v').innerHTML=`<div class=f><select id=st>${sopt()}</select><textarea id=b placeholder="ملاحظة..."></textarea><button id=ad>حفظ</button></div>`+(data||[]).map(x=>`<div class=r><span>${esc(x.students.full_name)}<small>${esc(x.profiles?.full_name||'')} — ${x.created_at.slice(0,10)}</small>${esc(x.body)}</span></div>`).join('');
+ $('#v').innerHTML=`<div class=f><select id=st>${sopt()}</select><textarea id=b placeholder="${t('note')}..."></textarea><button id=ad>${t('add')}</button></div>`+(data||[]).map(x=>`<div class=r><span>${esc(x.students.full_name)}<small>${esc(x.profiles?.full_name||'')} — ${x.created_at.slice(0,10)}</small>${esc(x.body)}</span></div>`).join('');
  $('#ad').onclick=async()=>{const b=$('#b').value.trim();if(b&&!err((await sb.from('observations').insert({student_id:$('#st').value,body:b})).error))go('notes')};
 },
+notebook:async()=>{ // private coach notebook
+ const{data}=await sb.from('coach_notebook').select('*').eq('owner_id',me.id).order('created_at',{ascending:false});
+ $('#v').innerHTML=`<div class=f><textarea id=b placeholder="${t('note')}..."></textarea><button id=ad>${t('add')}</button></div>`+(data||[]).map(n=>`<div class=r><span><small>${n.created_at.slice(0,16)}</small>${esc(n.body)}</span><button class=danger onclick="delNote('${n.id}')">${t('logout')==='Logout'?'Del':'حذف'}</button></div>`).join('');
+ $('#ad').onclick=async()=>{const b=$('#b').value.trim();if(b&&!err((await sb.from('coach_notebook').insert({owner_id:me.id,body:b})).error))go('notebook')};
+ window.delNote=async(id)=>{if(!err((await sb.from('coach_notebook').delete().eq('id',id).eq('owner_id',me.id)).error))go('notebook')};
+},
 chat:async()=>{
- $('#v').innerHTML=`<div id=l class=chat></div><div class=f><input id=m placeholder="رسالة..."><button id=sd>إرسال</button></div>`;
+ $('#v').innerHTML=`<div id=l class=chat></div><div class=f><input id=m placeholder="..."><input id=f type=file><button id=sd>${t('send')}</button><button id=uf>Upload</button></div>`;
  const ld=async()=>{const{data}=await sb.from('chat_messages').select('body,author_id,profiles(full_name)').order('created_at',{ascending:false}).limit(100);const l=$('#l');if(!l)return;l.innerHTML=(data||[]).reverse().map(x=>`<div class="c${x.author_id==me.id?' me':''}"><small>${esc(x.profiles?.full_name||'')}</small>${esc(x.body)}</div>`).join('');l.scrollTop=1e9};
  await ld();timer=setInterval(ld,10000);
  $('#sd').onclick=async()=>{const b=$('#m').value.trim();if(b&&!err((await sb.from('chat_messages').insert({body:b})).error)){$('#m').value='';ld()}};
+ $('#uf').onclick=async()=>{const f=$('#f').files?.[0];if(!f)return;const path=`chat/${Date.now()}-${f.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;const{error:up}=await sb.storage.from('institution-assets').upload(path,f,{upsert:true});if(up){alert(up.message);return;}const{data}=sb.storage.from('institution-assets').getPublicUrl(path);if(!err((await sb.from('chat_messages').insert({body:'[file] '+data.publicUrl})).error)){$('#f').value='';ld()}};
 },
 team:async()=>{
  const{data}=await sb.from('profiles').select('*').order('created_at');
  $('#v').innerHTML=(data||[]).map(p=>{
   const lo=RK[me.role]>RK[p.role]&&p.id!=me.id,b=(l,x)=>`<button data-i=${p.id} data-p='${JSON.stringify(x)}'>${l}</button>`;
-  return `<div class=r><span>${esc(p.full_name||'-')}<small>${RL[p.role]} — ${p.status}</small></span>${lo?(p.status!=='active'?b('تفعيل',{status:'active'}):b('تعليق',{status:'suspended'}))+(p.role==='coach'&&RK[me.role]>=3?b('ترقية لإدارة',{role:'admin'}):''):''}</div>`}).join('');
+  return `<div class=r><span>${esc(p.full_name||'-')}<small>${RL[p.role]} — ${p.status}</small></span>${lo?(p.status!=='active'?b(t('active'),{status:'active'}):b(t('suspended'),{status:'suspended'}))+(p.role==='coach'&&RK[me.role]>=3?b('admin',{role:'admin'}):''):''}</div>`}).join('');
  document.querySelectorAll('#v [data-p]').forEach(x=>x.onclick=async()=>{if(!err((await sb.from('profiles').update(JSON.parse(x.dataset.p)).eq('id',x.dataset.i)).error))go('team')});
 },
 tests:async()=>{
  const{data}=await sb.from('test_definitions').select('*').order('name');
- $('#v').innerHTML=`<div class=f><input id=nm placeholder="اسم الاختبار"><input id=un placeholder="الوحدة"><label><input id=hi type=checkbox checked> الأعلى أفضل</label><button id=ad>إضافة</button></div>`+(data||[]).map(t=>`<div class=r><span>${esc(t.name)}</span><small>${esc(t.unit||'')}</small></div>`).join('');
- $('#ad').onclick=async()=>{if(!err((await sb.from('test_definitions').insert({name:$('#nm').value.trim(),unit:$('#un').value.trim(),higher_is_better:$('#hi').checked})).error))go('tests')};
-}};
+ $('#v').innerHTML=`<div class=f><input id=nm placeholder="${t('test')}"><input id=un placeholder="unit"><input id=cf type=number step=any placeholder="${t('coef')}" value=1><label><input id=hi type=checkbox checked> higher better</label><button id=ad>${t('add')}</button></div>
+ <div class=f><textarea id=scale placeholder='Scale JSON: [{"rawValue":..,"score":..}]'></textarea><select id=tscale>${opts(data||[],'id','name')}</select><button id=sscale>${t('save')} ${t('scale')}</button></div>`+
+ (data||[]).map(t=>`<div class=r><span>${esc(t.name)}</span><small>${esc(t.unit||'')} coeff:${t.coefficient||1}</small></div>`).join('');
+ $('#ad').onclick=async()=>{const payload={name:$('#nm').value.trim(),unit:$('#un').value.trim(),higher_is_better:$('#hi').checked};const coef=+$('#cf').value;if(Number.isFinite(coef))payload.coefficient=coef;let{error}=await sb.from('test_definitions').insert(payload);if(error&&/coefficient/i.test(error.message)){delete payload.coefficient;({error}=await sb.from('test_definitions').insert(payload));if(!error)alert('coefficient column missing; saved without coefficient');}if(!err(error))go('tests')};
+ $('#sscale').onclick=async()=>{let rules;try{rules=JSON.parse($('#scale').value);if(!Array.isArray(rules))throw 0;}catch{alert('JSON invalid');return;}const tid=$('#tscale').value;if(!tid){alert('select test');return;}const{data:vers}=await sb.from('scale_versions').select('version').eq('test_id',tid).order('version',{ascending:false}).limit(1);const v=(vers?.[0]?.version||0)+1;if(!err((await sb.from('scale_versions').insert({institution_id:me.institution_id,test_id:tid,version:v,valid_from:today(),rules})).error)){alert(t('saved'));$('#scale').value=''}};
+},
+audit:async()=>{
+ if(!adm()){ $('#v').innerHTML='<p class=m>Accès refusé</p>';return;}
+ const{data}=await sb.from('audit_log').select('*').eq('institution_id',me.institution_id).order('created_at',{ascending:false}).limit(100);
+ $('#v').innerHTML=`<h4>${t('auditLog')}</h4>`+(data||[]).map(a=>`<div class=r><span>${a.table_name} — ${a.action}<small>${a.created_at} — ${a.actor_id||'system'}</small></span><small>${JSON.stringify(a.new_data||a.old_data||'')}</small></div>`).join('')||'<p class=m>vide</p>';
+},
+settings:async()=>{
+ if(!adm()){ $('#v').innerHTML='<p class=m>Accès refusé</p>';return;}
+ const{data:inst}=await sb.from('institutions').select('*').eq('id',me.institution_id).maybeSingle();
+ $('#v').innerHTML=`<div class=f><input id=in name value="${esc(inst?.name||'')}"><input id=lg type=file accept="image/*"><button id=sv>${t('save')}</button></div>${inst?.logo_url?`<img src="${inst.logo_url}" style="max-width:120px">`:''}<div class=f><input id=sy placeholder="School year (e.g. 2025-2026)" value="${localStorage.getItem('schoolYear')||''}"><button id=ssy>Save year</button></div><p class=m>School year stored locally (migration needed for shared archive).</p>`;
+ $('#sv').onclick=async()=>{
+  let logo_url=inst?.logo_url||null;const f=$('#lg').files?.[0];
+  if(f){const path=`institution/${Date.now()}-${f.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;const{error:up}=await sb.storage.from('institution-assets').upload(path,f,{upsert:true});if(up){alert(up.message);return;}const{data}=sb.storage.from('institution-assets').getPublicUrl(path);logo_url=data.publicUrl;}
+  if(!err((await sb.from('institutions').update({name:$('#in').value.trim(),logo_url}).eq('id',me.institution_id)).error)){alert(t('saved'));go('settings')}
+ };
+ $('#ssy').onclick=()=>{localStorage.setItem('schoolYear',$('#sy').value.trim());alert(t('saved'));};
+ // infrastructure
+ const{data:facs}=await sb.from('institution_facilities').select('*').eq('institution_id',me.institution_id);
+ const{data:eqs}=await sb.from('institution_equipment').select('*').eq('institution_id',me.institution_id);
+ const infra=document.createElement('div');
+ infra.innerHTML=`<h4>${t('infra')}</h4><div class=f><input id=fn placeholder="Facility"><button id=fadd>Add</button></div>`+(facs||[]).map(f=>`<div class=r><span>${esc(f.facility_name)}</span></div>`).join('')+
+ `<div class=f><input id=en placeholder="Equipment"><input id=eq type=number value=1><button id=eadd>Add</button></div>`+(eqs||[]).map(e=>`<div class=r><span>${esc(e.equipment_name)}</span><b>${e.quantity}</b></div>`).join('');
+ $('#v').appendChild(infra);
+ $('#fadd').onclick=async()=>{if(!err((await sb.from('institution_facilities').insert({institution_id:me.institution_id,facility_name:$('#fn').value.trim()})).error))go('settings')};
+ $('#eadd').onclick=async()=>{if(!err((await sb.from('institution_equipment').insert({institution_id:me.institution_id,equipment_name:$('#en').value.trim(),quantity:+$('#eq').value||1})).error))go('settings')};
+},
+};
+async function handleRehab(id){if(!err((await sb.rpc('handle_rehab_notification', {p_notification_id: id })).error)){alert(t('saved'));go(tab)}}
+function openDossier(sid){
+ const s=studs.find(x=>x.id===sid);if(!s)return;
+ const modal=document.createElement('div');modal.className='modal';modal.innerHTML=`<div><h3>${esc(s.full_name)}</h3><p>${t('number')}: ${s.student_number}</p><div id=dres>...</div><div id=dbmi>...</div><button class=ghost onclick="this.closest('.modal').remove()">Close</button></div>`;document.body.appendChild(modal);
+ // load results
+ (async()=>{const{data}=await sb.from('test_results').select('*,test_definitions(name,unit)').eq('student_id',sid).order('tested_on',{ascending:false});$('#dres').innerHTML='<h4>'+t('results')+'</h4>'+(data||[]).map(r=>`<div class=r><span>${esc(r.test_definitions?.name)} — ${r.tested_on}</span><b>${r.raw_value} ${esc(r.test_definitions?.unit||'')}</b>${r.score!=null?` (${r.score})`:''}</div>`).join('')||'aucun';
+ // load bmi
+ const{data:ms}=await sb.from('body_measurements').select('*').eq('student_id',sid).order('measured_on',{ascending:false});$('#dbmi').innerHTML='<h4>'+t('history')+'</h4>'+(ms||[]).map(m=>`<div class=r><span>${m.measured_on}</span><b>${m.weight_kg}kg / ${m.height_cm}cm</b><small>${bmi(m.weight_kg,m.height_cm)?.toFixed(2)} — ${bmiClass(bmi(m.weight_kg,m.height_cm),ageOn(s.birth_date,m.measured_on),s.gender)}</small></div>`).join('')||'aucun';
+})();
+}
 boot();
 </script></body></html>
