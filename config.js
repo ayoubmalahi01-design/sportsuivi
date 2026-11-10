@@ -2,7 +2,12 @@
  * SportSuivi Configuration
  * @type {Object}
  */
-window.CFG = {
-  url: 'https://lcsbwwqfeuangmuxlefq.supabase.co',
-  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxjc2J3d3FmZXVhbmdtdXhsZWZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQyMzg0MDksImV4cCI6MjEwOTgxNDQwOX0.onde9lq__GVJXEr10WLGVHmKnaYvUpJlH54ICaJBR8A'
+const CFG = {
+  /** Supabase project URL - replace with your actual Supabase project URL */
+  url: 'https://YOUR-PROJECT.supabase.co',
+  /** Supabase anon public key - replace with your actual anon key */
+  key: 'YOUR_ANON_PUBLIC_KEY'
 };
+
+// NOTE: استبدل القيم أعلاه بقيم حقيقية من مشروع Supabase قبل النشر.
+// المتغيرات CFG.url و CFG.key يجب أن تتوفر فعلياً للمشروع ليعمل.
