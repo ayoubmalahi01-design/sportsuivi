@@ -7,3 +7,7 @@
 .chat-msg{background:rgba(255,255,255,.06);padding:8px 12px;border-radius:12px;max-width:80%;align-self:flex-start}
 .chat-msg.me{align-self:flex-end;background:rgba(34,211,166,.15)}
 .chat-msg small{display:block;opacity:.7;font-size:11px}.chat-msg p{margin:4px 0 0}
+
+.year-pick{padding:8px 16px}.year-pick small{display:block;opacity:.7;margin-bottom:4px}.year-pick select{width:100%}
+
+@media print{aside,header,nav,.no-print,.toast{display:none!important}body{background:#fff!important;color:#000!important}.panel,.r,.bulk-preview{background:#fff!important;color:#000!important;box-shadow:none!important}}
