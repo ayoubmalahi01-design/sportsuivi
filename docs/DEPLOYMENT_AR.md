@@ -19,6 +19,16 @@ npm run build
 npm run preview
 ```
 
+## إعداد اتصال Supabase
+- عنوان المشروع الحالي مضبوط في `config.js` على `https://xbjthetphqxdhwufkmly.supabase.co`.
+- أضف قيمة `Publishable key` (أو مفتاح `anon` القديم) في `config.js` مكان `YOUR_SUPABASE_PUBLISHABLE_KEY`، أو عرّف متغيري البناء `VITE_SUPABASE_URL` و`VITE_SUPABASE_PUBLISHABLE_KEY` في Cloudflare Pages.
+- لا تضع `service_role` أو كلمة مرور قاعدة البيانات في الواجهة.
+
+## تعديل قاعدة البيانات المطلوب لهذه النسخة
+- بعد مراجعة عمود `absence_reason` في جدول `attendance`، نفّذ فقط `docs/ADD_ATTENDANCE_REASON_COLUMN.sql` إذا كان العمود غير موجود. الأمر يستخدم `ADD COLUMN IF NOT EXISTS` ولا يحذف بيانات.
+- تسجيل الحضور داخل الحصة يحفظ سجل كل تلميذ: الغائب `absent` مع سبب الغياب، وبقية التلاميذ `present`، باستخدام مفتاح الحصة والتاريخ لمنع التكرار.
+- ملاحظات الحصة تُحفظ في العمود الموجود `sessions.notes`.
+
 ## Supabase — مهم قبل استعمال بيانات حقيقية
 1. لا تعاود تنفيذ ملف `SUPABASE_MIGRATION.sql` أو أي مخطط تأسيسي جديد فوق قاعدة فيها بيانات.
 2. راجع الجداول والسياسات الحالية في مشروع Supabase أولًا.
