@@ -1,20 +1,33 @@
-const C='ss7';
-self.addEventListener('install', e => {
+const CACHE_NAME = 'sport-performance-v6';
+const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).catch(() => {}));
   self.skipWaiting();
-  e.waitUntil(
-    caches.open(C).then(c => c.addAll(['./', 'index.html', 'config.js', 'manifest.webmanifest'])).catch(() => console.log('Cache addAll completed with warnings'))
-  );
 });
-self.addEventListener('activate', e => {
-  e.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(k=>k==='ss6').map(k=>caches.delete(k)))),self.clients.claim()]));
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k.startsWith('sport-performance-') && k !== CACHE_NAME).map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).then(f => {
-      const k = f.clone();
-      caches.open(C).then(c => c.put(e.request, k)).catch(() => console.log('Fetch cache store error', e.request.url));
-      return f;
-    }))
-  );
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  // Supabase auth, REST and storage are never cached: always use the live secured API.
+  if (/\/(rest\/v1|auth\/v1|storage\/v1)\//.test(url.pathname)) return;
+  if (req.mode === 'navigate') {
+    event.respondWith(fetch(req).then(res => {
+      if (res.ok) caches.open(CACHE_NAME).then(c => c.put('/index.html', res.clone()));
+      return res;
+    }).catch(async () => (await caches.match('/index.html')) || Response.error()));
+    return;
+  }
+  // Network-first for app assets to avoid stale application code after deployment.
+  event.respondWith(fetch(req).then(res => {
+    if (res.ok && res.type === 'basic') caches.open(CACHE_NAME).then(c => c.put(req, res.clone()));
+    return res;
+  }).catch(async () => (await caches.match(req)) || Response.error()));
 });
