@@ -2,5 +2,6 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sport-performance",
   "compatibility_date": "2026-11-09",
+  "account_id": "b0c42d560c73607b6104d68527c88582",
   "assets": { "directory": "./dist", "not_found_handling": "single-page-application" }
 }
