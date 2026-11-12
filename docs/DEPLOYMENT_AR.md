@@ -1,64 +1,39 @@
-# Sport Performance — تعليمات النشر
+# دليل إعداد ونشر Sport Performance
 
-## ما تحتويه الحزمة
-- واجهة React/Vite عربية RTL ومتجاوبة للهاتف والحاسوب.
-- تسجيل دخول Supabase وإنشاء حساب مدرب ينتظر موافقة الإدارة.
-- صلاحيات الواجهة حسب دور الحساب، مع الاعتماد على RLS في قاعدة البيانات.
-- إدارة التلاميذ (فردي وجماعي)، الحضور وأسباب الغياب والتأخر، الاختبارات، النتائج، إصدارات BARÈME، الحصص، كراس المدرب الخاص، الفريق، سجل التدقيق وإعدادات المؤسسة.
-- إعداد Cloudflare Workers Static Assets عبر `wrangler.jsonc`.
+## متغيرات الاتصال
 
-## تشغيل محلي
+لا توجد بيانات اتصال ثابتة داخل الكود. اضبط في بيئة بناء Cloudflare:
+
+- `VITE_SUPABASE_URL`: رابط مشروع Supabase الصحيح الذي يحتوي قاعدة Sport Performance.
+- `VITE_SUPABASE_PUBLISHABLE_KEY`: مفتاح Publishable/anon المخصص للمتصفح.
+
+لا تضع مفتاح `service_role` أو كلمة مرور قاعدة البيانات داخل التطبيق أو ZIP.
+
+## ترقية قاعدة البيانات
+
+راجع ونفّذ فقط `supabase/migrations/20261112_production_upgrade.sql` بعد التأكد من أن المخطط الحالي يطابق المتطلبات المذكورة في الملف. لا تستخدم ملفات المرجع أو ملفات Migration القديمة المنقولة إلى `docs/legacy`.
+
+## بناء التطبيق
+
 ```bash
 npm install
-npm run dev
-```
-
-## بناء وفحص
-```bash
 npm run build
-npm run preview
 ```
 
-## إعداد اتصال Supabase
-- عنوان المشروع الحالي مضبوط في `config.js` على `https://xbjthetphqxdhwufkmly.supabase.co`.
-- أضف قيمة `Publishable key` (أو مفتاح `anon` القديم) في `config.js` مكان `YOUR_SUPABASE_PUBLISHABLE_KEY`، أو عرّف متغيري البناء `VITE_SUPABASE_URL` و`VITE_SUPABASE_PUBLISHABLE_KEY` في Cloudflare Pages.
-- لا تضع `service_role` أو كلمة مرور قاعدة البيانات في الواجهة.
+## نشر Cloudflare Workers Static Assets
 
-## تعديل قاعدة البيانات المطلوب لهذه النسخة
-- بعد مراجعة عمود `absence_reason` في جدول `attendance`، نفّذ فقط `docs/ADD_ATTENDANCE_REASON_COLUMN.sql` إذا كان العمود غير موجود. الأمر يستخدم `ADD COLUMN IF NOT EXISTS` ولا يحذف بيانات.
-- تسجيل الحضور داخل الحصة يحفظ سجل كل تلميذ: الغائب `absent` مع سبب الغياب، وبقية التلاميذ `present`، باستخدام مفتاح الحصة والتاريخ لمنع التكرار.
-- ملاحظات الحصة تُحفظ في العمود الموجود `sessions.notes`.
-
-## Supabase — مهم قبل استعمال بيانات حقيقية
-1. لا تعاود تنفيذ ملف `SUPABASE_MIGRATION.sql` أو أي مخطط تأسيسي جديد فوق قاعدة فيها بيانات.
-2. راجع الجداول والسياسات الحالية في مشروع Supabase أولًا.
-3. ملف `supabase/migrations/20261109_production_additions.sql` إضافي فقط، لكنه يحتاج مراجعة توافق أسماء الدوال والجداول في قاعدة المشروع قبل تشغيله. لا تشغّله قبل التحقق.
-4. تأكد من وجود مؤسسة واحدة، وأن حساب الإدارة الأولى مفعّل بدور `admin` أو `super_admin` من إجراء موثوق في لوحة Supabase.
-5. حسابات المدربين الجديدة تُنشأ بحالة انتظار الموافقة وفق trigger الموجود في المخطط الأصلي.
-6. لا تستخدم Service Role Key في الواجهة. الحزمة تستخدم Publishable Key فقط.
-
-## Cloudflare Workers
-- اربط المستودع أو ارفع محتويات الحزمة.
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Deploy command: `npx wrangler deploy`
-- `wrangler.jsonc` يعرّف مجلد الأصول `./dist` ويشغّل SPA fallback.
-
-## حدود يجب التحقق منها قبل التشغيل الفعلي
-- يلزم اختبار تسجيل الدخول والموافقة والحسابات بأكثر من مستخدم في مشروع Supabase نفسه.
-- يلزم فحص تطابق الـschema المنشور مع الجداول والحقول المستخدمة من الواجهة.
-- منطق تنبيه التأهيل (5 غيابات متتالية ثم حصتان فعليتان) تم توفير جداول أساسه في migration، لكنه يحتاج تفعيل منطق المعالجة واختبارات قبول قبل اعتباره مكتملًا.
-- استيراد التلاميذ الجماعي الحالي يحفظ الصفوف بعد التحقق الأساسي؛ راجع التكرارات قبل الحفظ.
-- رفع شعار المؤسسة يتطلب تطبيق migration وسياسات Storage.
-- لا توجد بيانات تلاميذ تجريبية مضمنة في النسخة الإنتاجية.
-
-## إعداد حساب الإدارة الأولى
-إذا لم يكن حساب مالك/إدارة مفعّلًا بالفعل، أنشئ المؤسسة أولًا ثم أنشئ المستخدم من شاشة التسجيل أو Supabase Authentication. بعد التأكد من الحساب، يعيّن مالك قاعدة البيانات دوره مرة واحدة من SQL Editor باستخدام البريد الصحيح:
-```sql
-UPDATE public.profiles
-SET role = 'super_admin', status = 'active'
-WHERE id = (SELECT id FROM auth.users WHERE email = 'YOUR_EMAIL');
+```bash
+npx wrangler deploy
 ```
-لا تنفّذ هذا على حساب غير موثوق، ولا ترفع صلاحيات حساب مدرب عادي. إذا كان لديك حساب إدارة مفعّل حاليًا فلا حاجة لهذا الإجراء.
 
-الملف `docs/legacy-schema-reference-do-not-run.sql` محفوظ للمراجعة التاريخية فقط، ولا يُنفّذ فوق قاعدة البيانات الحالية.
+راجع `wrangler.jsonc` وتأكد من اسم Worker الصحيح. يجب أن يكون البناء قد تم بعد ضبط متغيرات Vite؛ تغيير متغيرات Cloudflare بعد إنتاج `dist` لا يغير القيم التي بُنيت داخل ملفات JavaScript.
+
+## تثبيت PWA
+
+يجب أن يكون الموقع على HTTPS وأن يعمل `manifest.webmanifest` و`sw.js`:
+
+- Android/Chrome: قائمة المتصفح ← تثبيت التطبيق.
+- iOS/Safari: مشاركة ← إضافة إلى الشاشة الرئيسية.
+- Desktop/Chrome أو Edge: Install من شريط العنوان أو القائمة.
+
+هذه PWA قابلة للتثبيت، وليست APK موقّعًا أو تطبيق متجر.

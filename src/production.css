@@ -25,3 +25,39 @@
 .reports-panel{display:grid;gap:16px}.report-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.report-actions select{min-width:210px;flex:1;height:40px;border:1px solid #dce8df;border-radius:9px;padding:0 10px;background:#fff}.report-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin:10px 0}.report-kpis>div{display:grid;gap:5px;padding:13px;border:1px solid #e2ece5;border-radius:12px;background:#f8fbf8}.report-kpis small{font-size:10px;color:#74877a}.report-kpis b{font-size:19px;color:#20583b;font-variant-numeric:tabular-nums}.report-subpanel{padding:16px;border:1px solid #e5ede7;border-radius:14px;background:#fff}.report-subpanel h3{margin:0 0 7px;color:#20563a;font-size:15px}.report-subpanel h4{margin:18px 0 9px;color:#315d43;font-size:13px}.report-subpanel>p{font-size:11px;color:#718277;line-height:1.8}.report-bars{display:grid;gap:10px;margin:14px 0}.report-bar-row{display:grid;grid-template-columns:minmax(90px,1fr) minmax(90px,2fr) auto;gap:9px;align-items:center;font-size:10px}.report-bar-row>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.report-bar-row>div{height:10px;border-radius:10px;background:#edf3ee;overflow:hidden}.report-bar-row i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,#3a9b64,#78bf8b)}.report-bar-row>b{font-variant-numeric:tabular-nums;color:#245b3c}.report-line-wrap{margin:12px 0;padding:12px;border:1px solid #edf2ee;border-radius:12px;background:#fbfdfb}.report-line-wrap>b{display:block;font-size:11px;color:#355d44}.report-line-wrap svg{display:block;width:100%;max-height:190px;overflow:visible}.report-line-labels{display:flex;justify-content:space-between;font-size:9px;color:#829187}.report-line-wrap>small{display:block;margin-top:5px;color:#849188;font-size:9px}.report-test-history{padding:12px 0;border-top:1px solid #edf1ed}.report-test-history>small{display:block;color:#849187;font-size:10px;margin-top:4px}.report-test-history .empty-state{margin:8px 0}.report-actions .btn:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:620px){.report-actions>*{width:100%}.report-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.report-subpanel{padding:12px}.report-bar-row{grid-template-columns:85px minmax(60px,1fr) auto}.report-bar-row>span{font-size:9px}}
 @media print{.report-actions,.no-print{display:none!important}.report-subpanel{break-inside:avoid}.report-line-wrap{break-inside:avoid}}
+
+/* Language and standalone install experience */
+.language-select,.language-picker select{border:1px solid #dce7df;background:#fff;color:#294a39;border-radius:9px;padding:8px 10px;font-size:11px;min-height:34px}
+.language-picker{display:flex;justify-content:flex-end;margin-bottom:10px}
+.lesson-plan-picker{display:grid;grid-template-columns:1fr;gap:7px;margin:14px 0;padding:13px;border:1px solid #e5eee8;border-radius:12px;background:#fbfdfb}
+.lesson-plan-picker label{font-size:11px;color:#587060}
+.lesson-plan-picker select{min-height:40px;border:1px solid #dce7df;border-radius:8px;padding:8px;background:white}
+.lesson-plan-editor{margin:15px 0;padding:16px;border:1px solid #dcebe0;border-radius:13px;background:#f8fcf9}
+.lesson-plan-editor h3,.lesson-plan-list h3{margin:0 0 8px;font-size:14px;color:#244b35}
+.lesson-plan-editor p{font-size:11px;color:#728579;margin:0 0 12px}
+.lesson-plan-list{margin:15px 0;display:grid;gap:9px}
+.lesson-plan-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid #e4ece6;border-radius:11px;background:#fff}
+.lesson-plan-card b{font-size:12px;color:#254b36}
+.lesson-plan-card p{font-size:11px;color:#607568;white-space:pre-wrap;margin:6px 0}
+.lesson-plan-card small{font-size:10px;color:#87978d}
+.session-plan{margin:12px 0;background:#f8fcf9}
+.student-photo-area{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:9px}
+.student-photo-area img{width:104px;height:104px;object-fit:cover;border-radius:14px;border:1px solid #dce7df;background:#f4f7f4}
+.student-photo-area input{max-width:220px;font-size:10px}
+html[dir="ltr"] body{direction:ltr}
+html[dir="ltr"] .app-shell,html[dir="ltr"] .main{direction:ltr}
+html[dir="ltr"] .nav-link,html[dir="ltr"] .quick-actions button,html[dir="ltr"] .session-card,html[dir="ltr"] .student-mini,html[dir="ltr"] .notice-card{text-align:left}
+html[dir="ltr"] .sidebar{left:0;right:auto}
+html[dir="ltr"] .main{margin-right:0;margin-left:260px}
+html[dir="ltr"] .crumb{direction:ltr}
+html[dir="ltr"] .profile-mini{direction:ltr}
+@media(max-width:900px){html[dir="ltr"] .main{margin-left:0}}
+@media(max-width:650px){.lesson-plan-card{align-items:flex-start;flex-direction:column}.language-select{max-width:110px}.student-photo-area img{width:88px;height:88px}}
+.pagination{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding:12px 0;color:#718579;font-size:11px}
+.pagination span{margin-inline-end:auto}
+html[dir="ltr"] .pagination{flex-direction:row-reverse}
+.student-picker{display:grid;gap:5px;min-width:180px}
+.student-picker input,.student-picker select{min-height:36px;border:1px solid #dce7df;border-radius:8px;padding:7px 9px;background:#fff;min-width:0}
+.student-picker small{font-size:9px;color:#83948a}
+
+.chat-bar{display:flex;gap:6px;align-items:center}.chat-bar input{flex:1;min-width:0}.chat-img{max-width:100%;max-height:260px;border-radius:10px;display:block;margin:6px 0}.chat-msg audio{max-width:100%}.chat-attach{margin:6px 0;font-size:13px}.chat-panel .chat-box{max-height:55vh}

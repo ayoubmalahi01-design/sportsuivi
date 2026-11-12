@@ -7,12 +7,20 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
-  "background_color": "#0b1220",
+  "background_color": "#f4f7f4",
   "theme_color": "#102f28",
+  "categories": ["education", "health", "sports", "productivity"],
+  "description": "Sport Performance — إدارة مستقلة للتلاميذ والحضور والاختبارات والنتائج والقياسات والحصص والتقارير.",
   "icons": [
     {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
   ],
-  "description": "إدارة المؤسسة والتلاميذ والحضور والاختبارات والقياسات الرياضية"
+  "shortcuts": [
+    {"name": "التلاميذ", "short_name": "التلاميذ", "url": "/?page=students"},
+    {"name": "الحضور", "short_name": "الحضور", "url": "/?page=attendance"},
+    {"name": "التقارير", "short_name": "التقارير", "url": "/?page=reports"}
+  ]
 }
